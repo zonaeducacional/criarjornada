@@ -1,0 +1,18 @@
+{
+  "name": "A Forja do Limiar",
+  "short_name": "Forja Limiar",
+  "description": "Um jogo sobre a Jornada do Herói.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1a1208",
+  "theme_color": "#c49a2a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3408/3408545.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -6,40 +6,69 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Jornada">
-<meta name="theme-color" content="#1a1208">
-<title>A Forja do Limiar</title>
+<meta name="apple-mobile-web-app-title" content="A Forja">
+<meta name="theme-color" content="#0a0a0a">
+<title>A Forja do Limiar | Jornada do Herói</title>
+<link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
 <style>
 :root {
-  --ink: #1a1208;
-  --parchment: #f5ead8;
-  --parchment2: #ede0c4;
-  --gold: #c49a2a;
-  --gold-light: #e8c96a;
-  --ember: #c44b1a;
-  --ember-light: #f07040;
-  --sage: #2d6b4a;
-  --sage-light: #4a9e70;
-  --smoke: #8a7f70;
-  --smoke-light: #b8ae9e;
-  --card-bg: #fdf6e8;
-  --radius: 12px;
-  --radius-sm: 8px;
+  --bg: #0a0a0c;
+  --card-bg: rgba(255, 255, 255, 0.03);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --accent: #d4af37;
+  --accent-glow: rgba(212, 175, 55, 0.3);
+  --text-main: #e0e0e0;
+  --text-dim: #a0a0a0;
+  --success: #10b981;
+  --error: #ef4444;
+  --glass: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --radius-lg: 20px;
+  --radius-md: 12px;
+  --font-serif: 'Cormorant Garamond', serif;
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
 
-html, body {
-  height: 100%;
+body {
+  background-color: var(--bg);
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 0% 100%, rgba(212, 175, 55, 0.02) 0%, transparent 40%);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  height: 100vh;
   overflow: hidden;
-  background: var(--ink);
-  color: var(--ink);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 15px;
   line-height: 1.6;
+}
+
+/* ── UTILS ── */
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+}
+
+.animate-in {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ── SCREENS ── */
@@ -50,621 +79,579 @@ html, body {
   flex-direction: column;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.35s ease;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
 }
+
 .screen.active {
   opacity: 1;
   pointer-events: all;
+  z-index: 10;
 }
 
-/* ── HOME ── */
+/* ── HOME SCREEN ── */
 #screen-home {
-  background: var(--ink);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.hero-visual {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 2rem;
+  position: relative;
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
-  text-align: center;
-  gap: 0;
 }
-.home-ornament {
-  width: 60px;
-  height: 2px;
-  background: var(--gold);
-  margin: 0 auto 2rem;
+
+.hero-visual svg {
+  width: 64px;
+  height: 64px;
+  color: var(--accent);
+  filter: drop-shadow(0 0 15px var(--accent-glow));
+  z-index: 2;
 }
+
+.hero-visual::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  animation: pulse 3s infinite;
+  opacity: 0.3;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { opacity: 0.3; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
 .home-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(2.2rem, 8vw, 3.2rem);
-  font-weight: 600;
-  color: var(--parchment);
-  line-height: 1.1;
-  letter-spacing: -0.01em;
-  margin-bottom: 0.5rem;
+  font-family: var(--font-serif);
+  font-size: clamp(2.5rem, 10vw, 4rem);
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
+
 .home-subtitle {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
   font-style: italic;
-  font-size: 1rem;
-  color: var(--gold);
-  margin-bottom: 2.5rem;
-  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 2rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
 }
+
 .home-desc {
-  font-size: 0.88rem;
-  color: var(--smoke-light);
-  max-width: 300px;
-  margin: 0 auto 3rem;
-  line-height: 1.7;
+  max-width: 400px;
+  color: var(--text-dim);
+  margin-bottom: 3rem;
+  font-weight: 300;
 }
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--gold);
-  color: var(--ink);
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 500;
-  font-size: 0.9rem;
-  padding: 14px 32px;
+
+.btn-luxury {
+  background: var(--accent);
+  color: #000;
+  padding: 1rem 2.5rem;
   border-radius: 50px;
   border: none;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
   cursor: pointer;
-  letter-spacing: 0.03em;
-  transition: background 0.2s, transform 0.1s;
-  -webkit-user-select: none;
+  transition: all 0.3s;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3), 0 0 0 0 var(--accent-glow);
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
-.btn-primary:active { transform: scale(0.97); background: var(--gold-light); }
-.home-badge {
-  position: absolute;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.75rem;
-  color: var(--smoke);
+
+.btn-luxury:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.4), 0 0 20px var(--accent-glow);
+}
+
+.btn-luxury:active {
+  transform: translateY(0);
+}
+
+/* ── GAME SCREEN ── */
+#screen-game {
+  background: var(--bg);
+}
+
+.topbar {
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--card-border);
+  background: rgba(10, 10, 12, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+}
+
+.topbar-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar-title {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.topbar-status {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.score-badge {
+  background: var(--card-bg);
+  border: 1px solid var(--accent);
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.game-layout {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 70px);
+}
+
+/* Cards Pool */
+.pool-area {
+  padding: 1rem;
+  background: rgba(0,0,0,0.2);
+  border-bottom: 1px solid var(--card-border);
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+}
+
+.pool-header {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  margin-bottom: 0.8rem;
   display: flex;
   align-items: center;
   gap: 6px;
 }
-.offline-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--sage-light);
-}
 
-/* ── GAME ── */
-#screen-game {
-  background: var(--parchment);
-  overflow: hidden;
-}
-
-/* top bar */
-.topbar {
-  background: var(--ink);
-  padding: 12px 16px 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-  safe-area-inset-top: env(safe-area-inset-top);
-  padding-top: calc(12px + env(safe-area-inset-top));
-}
-.topbar-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.05rem;
-  color: var(--parchment);
-  font-weight: 600;
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.score-pill {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--gold);
-  background: rgba(196,154,42,0.15);
-  border: 1px solid rgba(196,154,42,0.3);
-  padding: 3px 10px;
-  border-radius: 50px;
-  white-space: nowrap;
-}
-.icon-btn {
-  background: none;
-  border: none;
-  color: var(--smoke-light);
-  cursor: pointer;
-  padding: 4px;
-  font-size: 1.1rem;
-  line-height: 1;
-  display: flex; align-items: center;
-}
-
-/* game body: pool + board split vertically on mobile */
-.game-body {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden;
-}
-
-/* pool (top half on mobile) */
-.pool-section {
-  background: var(--ink);
-  flex: 0 0 auto;
-  height: 46%;
-  display: flex;
-  flex-direction: column;
-  border-bottom: 2px solid var(--gold);
-}
-.section-label {
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--smoke);
-  padding: 8px 14px 4px;
-  flex-shrink: 0;
-}
 .pool-scroll {
   flex: 1;
+  display: flex;
+  gap: 12px;
   overflow-x: auto;
-  overflow-y: hidden;
-  display: flex;
-  align-items: stretch;
-  gap: 8px;
-  padding: 4px 14px 12px;
+  padding-bottom: 8px;
   scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
 }
-.pool-scroll::-webkit-scrollbar { display: none; }
 
-.para-card {
-  flex-shrink: 0;
-  width: 220px;
-  background: var(--card-bg);
-  border-radius: var(--radius);
-  border: 1.5px solid var(--parchment2);
-  padding: 12px 13px;
-  font-size: 0.78rem;
-  line-height: 1.6;
-  color: var(--ink);
+.pool-scroll::-webkit-scrollbar { height: 4px; }
+.pool-scroll::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 10px; }
+
+.story-card {
+  flex: 0 0 240px;
+  height: 130px;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
   cursor: grab;
-  scroll-snap-align: start;
-  display: flex;
-  flex-direction: column;
-  transition: border-color 0.15s, transform 0.15s;
-  -webkit-user-select: none;
+  transition: all 0.3s;
   user-select: none;
-  position: relative;
-}
-.para-card.placed {
-  opacity: 0.3;
-  pointer-events: none;
-  border-style: dashed;
-}
-.para-card.dragging-src { transform: scale(0.97); opacity: 0.5; }
-.para-card-num {
-  font-size: 0.65rem;
-  font-weight: 500;
-  color: var(--smoke);
-  letter-spacing: 0.08em;
-  margin-bottom: 5px;
+  scroll-snap-align: start;
 }
 
-/* board (bottom half on mobile) */
-.board-section {
+.story-card.placed {
+  opacity: 0.2;
+  filter: grayscale(1);
+  pointer-events: none;
+}
+
+.story-card:hover:not(.placed) {
+  border-color: var(--accent);
+  background: rgba(255,255,255,0.05);
+}
+
+/* Board Area */
+.board-area {
   flex: 1;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 12px 12px 80px;
-  background: var(--parchment);
-}
-.board-section::-webkit-scrollbar { display: none; }
-.board-story-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: var(--ink);
-  text-align: center;
-  margin-bottom: 12px;
-  letter-spacing: -0.01em;
-}
-
-.stage-row { margin-bottom: 10px; }
-.stage-label {
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--smoke);
-  margin-bottom: 4px;
-  padding-left: 2px;
-}
-.drop-slot {
-  min-height: 64px;
-  border-radius: var(--radius-sm);
-  border: 1.5px dashed var(--parchment2);
-  background: rgba(255,255,255,0.5);
-  padding: 10px 12px;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
+  gap: 2rem;
+}
+
+.board-area::-webkit-scrollbar { width: 6px; }
+.board-area::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 10px; }
+
+.stage-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stage-head {
+  display: flex;
+  align-items: center;
   gap: 8px;
-  transition: border-color 0.2s, background 0.2s;
+}
+
+.stage-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.stage-label {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.drop-zone {
+  min-height: 80px;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--card-border);
+  background: rgba(255,255,255,0.01);
+  transition: all 0.3s;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
 }
-.drop-slot.drag-over {
-  border-color: var(--gold);
-  background: rgba(196,154,42,0.08);
+
+.drop-zone.active {
+  border-color: var(--accent);
+  background: rgba(212, 175, 55, 0.05);
 }
-.drop-slot.filled {
+
+.drop-zone.filled {
   border-style: solid;
-  border-color: var(--parchment2);
+  border-color: var(--card-border);
   background: var(--card-bg);
 }
-.drop-slot.correct {
-  border-color: var(--sage);
-  background: rgba(45,107,74,0.07);
-}
-.drop-slot.wrong {
-  border-color: var(--ember);
-  background: rgba(196,75,26,0.06);
-}
+
+.drop-zone.correct { border-color: var(--success); background: rgba(16, 185, 129, 0.05); }
+.drop-zone.wrong { border-color: var(--error); background: rgba(239, 68, 68, 0.05); }
+
 .drop-placeholder {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
-  color: var(--smoke-light);
-  pointer-events: none;
-}
-.slot-text {
-  font-size: 0.78rem;
-  line-height: 1.6;
-  color: var(--ink);
-  flex: 1;
-}
-.slot-footer {
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-}
-.slot-rmv {
-  font-size: 0.68rem;
-  color: var(--smoke);
-  background: none;
-  border: 1px solid var(--parchment2);
-  border-radius: 20px;
-  padding: 2px 8px;
-  cursor: pointer;
-}
-.slot-rmv:active { background: var(--parchment2); }
-.slot-hint {
-  font-size: 0.75rem;
-  line-height: 1.55;
-  padding: 8px 10px;
-  border-radius: var(--radius-sm);
-  background: rgba(196,75,26,0.08);
-  color: var(--ember);
-  border-left: 3px solid var(--ember);
+  color: var(--text-dim);
+  font-size: 0.8rem;
   font-style: italic;
+  opacity: 0.5;
 }
 
-/* FAB verify */
-.fab-bar {
+.card-content {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.btn-remove {
+  background: none;
+  border: 1px solid var(--card-border);
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-remove:hover {
+  background: var(--error);
+  color: white;
+  border-color: var(--error);
+}
+
+.hint-box {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.1);
+  border-left: 3px solid var(--error);
+  font-size: 0.8rem;
+  color: #fca5a5;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── CONTROLS ── */
+.game-controls {
   position: fixed;
   bottom: 0;
-  left: 0; right: 0;
-  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-  background: linear-gradient(transparent, var(--parchment) 40%);
+  left: 0;
+  right: 0;
+  padding: 1.5rem;
+  background: linear-gradient(to top, var(--bg) 60%, transparent);
   display: flex;
-  gap: 10px;
-  z-index: 10;
+  gap: 1rem;
+  z-index: 1000;
 }
-.fab-bar.hidden { display: none; }
-.fab-main {
-  flex: 1;
-  background: var(--ink);
-  color: var(--parchment);
-  border: none;
-  border-radius: 50px;
-  padding: 14px;
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 500;
-  font-size: 0.9rem;
-  cursor: pointer;
-  letter-spacing: 0.02em;
-  transition: background 0.2s, transform 0.1s;
-}
-.fab-main:active { transform: scale(0.98); }
-.fab-main.gold { background: var(--gold); color: var(--ink); }
-.fab-reset {
-  background: none;
-  border: 1.5px solid var(--parchment2);
-  border-radius: 50px;
-  padding: 14px 18px;
-  font-size: 0.85rem;
-  color: var(--smoke);
-  cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-}
-.fab-reset:active { background: var(--parchment2); }
 
-/* ── RESULT ── */
-#screen-result {
-  background: var(--ink);
-  overflow: hidden;
-}
-.result-header {
-  padding: 16px 16px 12px;
-  padding-top: calc(16px + env(safe-area-inset-top));
-  background: var(--ink);
-  flex-shrink: 0;
-  border-bottom: 1px solid rgba(196,154,42,0.2);
-}
-.result-eyebrow {
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 4px;
-}
-.result-main-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.5rem;
+.btn-control {
+  flex: 1;
+  padding: 1rem;
+  border-radius: 50px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-main);
   font-weight: 600;
-  color: var(--parchment);
-  line-height: 1.15;
-}
-.result-scroll {
-  flex: 1;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 16px 16px 100px;
-}
-.result-scroll::-webkit-scrollbar { display: none; }
-.result-block {
-  margin-bottom: 20px;
-  border-left: 2px solid var(--sage);
-  padding-left: 14px;
-}
-.result-block-label {
-  font-size: 0.65rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--sage-light);
-  margin-bottom: 6px;
-}
-.result-block-text {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1rem;
-  line-height: 1.75;
-  color: var(--parchment);
-  margin-bottom: 8px;
-}
-.result-block-why {
-  font-size: 0.78rem;
-  line-height: 1.6;
-  color: var(--smoke-light);
-  padding: 8px 10px;
-  background: rgba(45,107,74,0.12);
-  border-radius: var(--radius-sm);
-  font-style: italic;
-}
-.result-fab {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
-  background: linear-gradient(transparent, var(--ink) 40%);
-  display: flex;
-  gap: 10px;
-}
-.btn-ghost {
-  flex: 1;
-  background: none;
-  border: 1.5px solid rgba(196,154,42,0.3);
-  border-radius: 50px;
-  padding: 13px;
-  color: var(--gold);
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.85rem;
   cursor: pointer;
-}
-.btn-ghost:active { background: rgba(196,154,42,0.1); }
-
-/* ── TOAST ── */
-.toast {
-  position: fixed;
-  bottom: 90px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: var(--ink);
-  color: var(--parchment);
-  font-size: 0.82rem;
-  padding: 10px 20px;
-  border-radius: 50px;
-  border: 1px solid rgba(196,154,42,0.3);
-  opacity: 0;
-  transition: opacity 0.3s, transform 0.3s;
-  white-space: nowrap;
-  z-index: 100;
-  pointer-events: none;
-}
-.toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
 }
 
-/* ── DESKTOP upgrade ── */
-@media (min-width: 600px) {
-  .game-body { flex-direction: row; }
-  .pool-section {
-    height: auto;
-    width: 260px;
-    flex: 0 0 260px;
+.btn-control.primary {
+  background: var(--accent);
+  color: #000;
+  border: none;
+}
+
+.btn-control:active { transform: scale(0.98); }
+
+/* ── RESULT SCREEN ── */
+#screen-result {
+  padding: 2rem;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.result-card {
+  max-width: 600px;
+  width: 100%;
+  padding: 2.5rem;
+  border-radius: var(--radius-lg);
+}
+
+.result-icon {
+  width: 80px;
+  height: 80px;
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+
+.result-title {
+  font-family: var(--font-serif);
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.result-text {
+  color: var(--text-dim);
+  margin-bottom: 2rem;
+}
+
+.story-full {
+  max-height: 300px;
+  overflow-y: auto;
+  text-align: left;
+  padding: 1.5rem;
+  background: rgba(0,0,0,0.2);
+  border-radius: var(--radius-md);
+  margin-bottom: 2rem;
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  line-height: 1.8;
+}
+
+.story-full p { margin-bottom: 1rem; }
+
+/* ── RESPONSIVE ── */
+@media (min-width: 768px) {
+  .game-layout {
+    flex-direction: row;
+  }
+  .pool-area {
+    width: 320px;
+    height: 100%;
     border-bottom: none;
-    border-right: 2px solid var(--gold);
+    border-right: 1px solid var(--card-border);
   }
   .pool-scroll {
     flex-direction: column;
     overflow-x: hidden;
     overflow-y: auto;
-    height: auto;
-    padding: 4px 10px 12px;
   }
-  .para-card { width: auto; scroll-snap-align: none; }
-  .board-section { padding: 16px 16px 80px; }
+  .story-card {
+    flex: 0 0 auto;
+    width: 100%;
+    height: auto;
+  }
+  .board-area {
+    padding: 3rem;
+  }
+  .game-controls {
+    left: 320px;
+  }
+}
+
+/* Touch Ghost */
+.touch-ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  width: 200px;
+  padding: 10px;
+  background: var(--accent);
+  color: black;
+  border-radius: 8px;
+  opacity: 0.8;
+  font-size: 0.8rem;
 }
 </style>
 </head>
 <body>
 
-<!-- HOME -->
+<!-- Pantalla de Inicio -->
 <div id="screen-home" class="screen active">
-  <div class="home-ornament"></div>
-  <h1 class="home-title">A Forja<br>do Limiar</h1>
-  <p class="home-subtitle">Jornada do Herói</p>
-  <p class="home-desc">Treze cenas. Uma jornada. Arranje os trechos na ordem correta para revelar a história completa.</p>
-  <button class="btn-primary" id="btn-start">Começar</button>
-  <div class="home-badge">
-    <span class="offline-dot"></span>
-    Funciona sem internet
+  <div class="hero-visual">
+    <i data-lucide="anvil"></i>
   </div>
+  <h1 class="home-title">A Forja do Limiar</h1>
+  <p class="home-subtitle">A Jornada do Herói</p>
+  <p class="home-desc">Treze fragmentos de uma alma em transformação. Ordene as etapas da jornada para revelar a verdade oculta.</p>
+  <button class="btn-luxury" onclick="startGame()">
+    INICIAR JORNADA <i data-lucide="arrow-right"></i>
+  </button>
 </div>
 
-<!-- GAME -->
+<!-- Pantalla de Jogo -->
 <div id="screen-game" class="screen">
-  <div class="topbar">
-    <span class="topbar-title">A Forja do Limiar</span>
-    <span class="score-pill" id="score-pill">0 / 13</span>
-    <button class="icon-btn" id="btn-home-from-game" title="Início">&#8592;</button>
-  </div>
-  <div class="game-body">
-    <div class="pool-section">
-      <div class="section-label">Trechos — arraste para o lugar certo</div>
-      <div class="pool-scroll" id="pool"></div>
+  <header class="topbar">
+    <div class="topbar-info">
+      <span class="topbar-title">A Forja do Limiar</span>
+      <span class="topbar-status">Ordenando a História</span>
     </div>
-    <div class="board-section" id="board">
-      <div class="board-story-title">A Forja do Limiar</div>
-      <div id="stages"></div>
-    </div>
+    <div class="score-badge" id="score-text">0 / 13</div>
+    <button class="btn-remove" onclick="goToHome()" style="padding: 8px;"><i data-lucide="home"></i></button>
+  </header>
+
+  <div class="game-layout">
+    <aside class="pool-area">
+      <div class="pool-header">
+        <i data-lucide="scroll-text" size="14"></i>
+        Fragmentos Disponíveis
+      </div>
+      <div class="pool-scroll" id="pool">
+        <!-- Cards injected here -->
+      </div>
+    </aside>
+
+    <main class="board-area" id="board">
+      <div id="stages-list">
+        <!-- Stages injected here -->
+      </div>
+      <div style="height: 100px;"></div>
+    </main>
   </div>
-  <div class="fab-bar" id="fab-bar">
-    <button class="fab-reset" id="btn-reset">Reiniciar</button>
-    <button class="fab-main" id="btn-check">Verificar</button>
-  </div>
+
+  <footer class="game-controls">
+    <button class="btn-control" onclick="resetGame()">REINICIAR</button>
+    <button class="btn-control primary" onclick="checkOrder()">VERIFICAR ORDEM</button>
+  </footer>
 </div>
 
-<!-- RESULT -->
+<!-- Pantalla de Resultado -->
 <div id="screen-result" class="screen">
-  <div class="result-header">
-    <div class="result-eyebrow">Parabéns — 13 / 13 corretos</div>
-    <div class="result-main-title">A Forja do Limiar</div>
-  </div>
-  <div class="result-scroll" id="result-scroll"></div>
-  <div class="result-fab">
-    <button class="btn-ghost" id="btn-copy">Copiar história</button>
-    <button class="btn-ghost" id="btn-play-again">Jogar de novo</button>
+  <div class="result-card glass">
+    <div class="result-icon">
+      <i data-lucide="sparkles" size="40"></i>
+    </div>
+    <h2 class="result-title">Jornada Completa</h2>
+    <p class="result-text">Você dominou os treze passos da transformação.</p>
+    
+    <div class="story-full" id="full-story-text">
+      <!-- Full story here -->
+    </div>
+
+    <div style="display: flex; gap: 1rem;">
+      <button class="btn-control" onclick="copyStory()">COPIAR TEXTO</button>
+      <button class="btn-control primary" onclick="resetGame()">JOGAR NOVAMENTE</button>
+    </div>
   </div>
 </div>
-
-<div class="toast" id="toast"></div>
 
 <script>
+// ── DATA ──
 const STAGES = [
-  {
-    label:"Mundo comum",
-    text:"Arion cresceu numa aldeia entre montanhas onde o tempo parecia parado. Os dias se repetiam como ecos: o mesmo mercado, os mesmos rostos, a mesma névoa descendo pelo vale ao entardecer. Ele consertava ferramentas e sonhava em silêncio, sem saber que o silêncio estava prestes a ser quebrado.",
-    hint:"Este trecho mostra a vida do herói antes de qualquer perturbação. Em qual etapa ele ainda vive sua rotina comum, sem saber que é especial?",
-    why:"O herói precisa partir de um lugar familiar e limitado. Sem esse contraste, não há transformação possível. É o ponto zero da jornada."
-  },
-  {
-    label:"Chamado à aventura",
-    text:"Uma noite, um mensageiro chegou com uma carta lacrada em cera negra. Ela dizia que o Cristal do Limiar havia sido roubado, e apenas alguém de sangue das montanhas poderia recuperá-lo. O nome de Arion estava escrito no verso, com uma tinta que brilhava como brasa.",
-    hint:"Algo externo rompe o equilíbrio da vida do herói. Qual etapa marca o momento em que o destino bate à porta pela primeira vez?",
-    why:"Toda jornada começa com uma ruptura — um chamado que tira o herói da zona de conforto. Sem ele, Arion jamais teria motivo para partir."
-  },
-  {
-    label:"Recusa do chamado",
-    text:"Arion dobrou a carta e a enfiou debaixo de uma tábua solta. Quem era ele para salvar qualquer coisa? Tinha mãos calejadas de ferreiro, não de herói. Passou três dias ignorando os sonhos que invadiam seu sono — sonhos de cidades em chamas e de uma voz que repetia seu nome como uma maré.",
-    hint:"O herói recebe o chamado mas hesita. Qual etapa mostra que aceitar o destino não é automático — há resistência interna?",
-    why:"A recusa humaniza o herói: ele tem medo, dúvida, não se acha capaz. Esse momento torna a partida, quando acontece, muito mais significativa."
-  },
-  {
-    label:"Encontro com o mentor",
-    text:"A velha Sura apareceu na forja ao amanhecer do quarto dia. Ela conhecia o pai de Arion e o segredo que ele carregava. Sentou-se na bigorna como se fosse um trono e disse: 'O medo não vai embora quando você age. Ele só muda de lugar.' Então entregou-lhe uma bússola sem agulha e foi embora sem despedida.",
-    hint:"Uma figura sábia aparece com palavras ou objetos que darão ao herói o que ele precisa para seguir. Em qual etapa ele recebe orientação antes de partir?",
-    why:"O mentor não resolve o problema — ele dá ao herói ferramentas e coragem. A bússola sem agulha simboliza que o caminho não está traçado; Arion precisará encontrá-lo."
-  },
-  {
-    label:"Travessia do limiar",
-    text:"Na manhã seguinte, Arion amarrou as botas, colocou a bússola no bolso e caminhou até a borda da aldeia. A névoa do vale o esperava como uma cortina. Ele respirou fundo, deu um passo além da pedra que marcava os limites do lugar que conhecia, e desapareceu na manhã cinzenta.",
-    hint:"O herói finalmente age e cruza a fronteira entre o mundo conhecido e o desconhecido. Qual etapa marca a partida definitiva, sem volta?",
-    why:"Este é o ponto sem retorno. Cruzar o limiar é o compromisso do herói com a jornada — o mundo comum fica para trás e a aventura começa de verdade."
-  },
-  {
-    label:"Testes, aliados e inimigos",
-    text:"O caminho trouxe provações e companheiros improváveis: Lira, uma arqueira exilada que não confiava em ninguém; Brek, um anão cartógrafo que conhecia cada atalho e cada armadilha da região. Juntos, enfrentaram guardas corrompidos, tempestades de areia e a traição de um guia contratado na cidade de Maren.",
-    hint:"O herói enfrenta obstáculos menores e constrói relações ao longo do caminho. Qual etapa mostra o aprendizado progressivo antes do grande desafio?",
-    why:"As provações intermediárias ensinam o herói a confiar, a lutar e a identificar aliados. Sem essa fase, ele chegaria despreparado à provação suprema."
-  },
-  {
-    label:"Aproximação da caverna",
-    text:"A Fortaleza de Cinza erguia-se no centro de uma planície sem sombra. Arion e seus companheiros acamparam a meia légua de distância, estudando as muralhas por dois dias. Lira contou as sentinelas. Brek desenhou a planta do interior. Arion não dormiu — sabia que o que havia lá dentro era diferente de tudo que haviam enfrentado.",
-    hint:"O herói chega perto do perigo máximo mas ainda não entrou. Ele observa e sente o peso do que está por vir. Em qual etapa a tensão cresce antes do confronto?",
-    why:"A aproximação é o momento de preparação e tensão crescente. O herói sabe que o próximo passo será o mais difícil — e essa consciência já é uma transformação."
-  },
-  {
-    label:"Provação suprema",
-    text:"No interior da fortaleza, Arion foi separado dos companheiros e preso numa câmara espelhada. Cada reflexo mostrava uma versão diferente de si: o covarde que ficou na aldeia, o herói que falhou, o homem que nunca existiu. Para sair, precisou escolher qual deles era real — e descobriu que todos eram, ao mesmo tempo.",
-    hint:"O herói enfrenta sua maior crise — confronto com seus próprios limites. Qual é o momento mais intenso e transformador de toda a jornada?",
-    why:"A câmara espelhada representa o confronto com a própria sombra. Arion não derrota um inimigo externo — ele integra suas contradições internas. É a transformação central."
-  },
-  {
-    label:"Recompensa",
-    text:"O Cristal do Limiar estava numa sala sem portas, flutuando sobre um pedestal de obsidiana. Quando Arion o tocou, sentiu a memória de cada pessoa que o havia carregado antes. Entendeu que o cristal não era um objeto de poder, mas um espelho de intenção — e que ele estava pronto para carregá-lo.",
-    hint:"Após sobreviver ao pior, o herói conquista o que buscava. Em qual etapa ele finalmente alcança o objetivo da missão?",
-    why:"A recompensa não é apenas material — é uma compreensão nova. Arion percebe que o cristal sempre foi um reflexo de quem o carrega. Ele só estava pronto agora."
-  },
-  {
-    label:"Caminho de volta",
-    text:"A fuga foi caótica. Lira abriu caminho com suas flechas enquanto Brek guiava pelo labirinto de corredores. Arion carregava o cristal contra o peito, sentindo seu calor pulsar como um segundo coração. Saíram pela entrada dos fundos no momento em que a fortaleza começava a desmoronar.",
-    hint:"Com o objetivo conquistado, o herói precisa retornar — mas o caminho de volta também tem perigos. Qual etapa marca o início do regresso?",
-    why:"Conquistar a recompensa não significa que o perigo acabou. O caminho de volta testa se o herói consegue preservar o que conquistou sob pressão."
-  },
-  {
-    label:"Ressurreição",
-    text:"A uma hora de distância, o general corrupto os interceptou com vinte cavaleiros. Lira foi atingida. Brek ficou para trás para abrir tempo. Arion chegou a um desfiladeiro sem saída. O cristal respondeu — não com magia, mas com clareza. Quando os cavaleiros chegaram à beira do abismo, encontraram apenas o eco de uma escolha.",
-    hint:"Uma última ameaça coloca tudo em risco novamente. O herói precisa usar tudo que aprendeu. Qual etapa é o teste final antes de chegar em casa?",
-    why:"A ressurreição é o último teste: o herói renasce simbolicamente usando não força bruta, mas a sabedoria conquistada ao longo de toda a jornada."
-  },
-  {
-    label:"Retorno com o elixir",
-    text:"Arion chegou à Câmara dos Guardiões sozinho, com o cristal e com cicatrizes que não existiam antes. Devolveu o objeto ao seu lugar com mãos que não tremeram. Os guardiões perguntaram o que havia aprendido. Ele respondeu: 'Que o equilíbrio não é ausência de caos. É o que escolhemos fazer dentro dele.'",
-    hint:"O herói completa a missão e entrega ao mundo o que trouxe da jornada. Em qual etapa ele cumpre o propósito maior da aventura?",
-    why:"O elixir não é apenas o cristal — é a sabedoria que Arion carrega. Ao devolvê-lo e nomear o que aprendeu, ele transforma experiência pessoal em algo que beneficia a todos."
-  },
-  {
-    label:"Novo mundo comum",
-    text:"A aldeia entre as montanhas parecia menor quando ele voltou — mas não de forma ruim. Menor, como uma roupa que ainda serve mas que já não define o tamanho de quem a veste. Arion retomou a forja, e as pessoas perceberam algo diferente nele: não uma aura de herói, mas a presença de quem já esteve no fundo e escolheu subir.",
-    hint:"O herói voltou, mas não é mais o mesmo. A vida cotidiana recomeça — porém transformada. Qual etapa mostra o mundo comum com novos olhos?",
-    why:"O herói retorna ao ponto de partida, mas agora ele é diferente. O 'mundo comum' não mudou — foi o olhar que mudou. É a prova de que a jornada valeu."
-  }
+  { label:"Mundo comum", text:"Arion cresceu numa aldeia entre montanhas onde o tempo parecia parado. Os dias se repetiam como ecos: o mesmo mercado, os mesmos rostos, a mesma névoa descendo pelo vale ao entardecer. Ele consertava ferramentas e sonhava em silêncio, sem saber que o silêncio estava prestes a ser quebrado.", hint:"Este trecho mostra a vida do herói antes de qualquer perturbação." },
+  { label:"Chamado à aventura", text:"Uma noite, um mensageiro chegou com uma carta lacrada em cera negra. Ela dizia que o Cristal do Limiar havia sido roubado, e apenas alguém de sangue das montanhas poderia recuperá-lo. O nome de Arion estava escrito no verso, com uma tinta que brilhava como brasa.", hint:"Algo externo rompe o equilíbrio da vida do herói." },
+  { label:"Recusa do chamado", text:"Arion dobrou a carta e a enfiou debaixo de uma tábua solta. Quem era ele para salvar qualquer coisa? Tinha mãos calejadas de ferreiro, não de herói. Passou três dias ignorando os sonhos que invadiam seu sono — sonhos de cidades em chamas e de uma voz que repetia seu nome como uma maré.", hint:"O herói recebe o chamado mas hesita." },
+  { label:"Encontro com o mentor", text:"A velha Sura apareceu na forja ao amanhecer do quarto dia. Ela conhecia o pai de Arion e o segredo que ele carregava. Sentou-se na bigorna como se fosse um trono e disse: 'O medo não vai embora quando você age. Ele só muda de lugar.' Então entregou-lhe uma bússola sem agulha e foi embora sem despedida.", hint:"Uma figura sábia aparece com orientação." },
+  { label:"Travessia do limiar", text:"Na manhã seguinte, Arion amarrou as botas, colocou a bússola no bolso e caminhou até a borda da aldeia. A névoa do vale o esperava como uma cortina. Ele respirou fundo, deu um passo além da pedra que marcava os limites do lugar que conhecia, e desapareceu na manhã cinzenta.", hint:"O herói finalmente cruza a fronteira para o desconhecido." },
+  { label:"Testes, aliados e inimigos", text:"O caminho trouxe provações e companheiros improváveis: Lira, uma arqueira exilada que não confiava em ninguém; Brek, um anão cartógrafo que conhecia cada atalho e cada armadilha da região. Juntos, enfrentaram guardas corrompidos, tempestades de areia e a traição de um guia contratado na cidade de Maren.", hint:"O herói enfrenta obstáculos menores e constrói relações." },
+  { label:"Aproximação da caverna", text:"A Fortaleza de Cinza erguia-se no centro de uma planície sem sombra. Arion e seus companheiros acamparam a meia légua de distância, estudando as muralhas por dois dias. Lira contou as sentinelas. Brek desenhou a planta do interior. Arion não dormiu — sabia que o que havia lá dentro era diferente de tudo que haviam enfrentado.", hint:"O herói chega perto do perigo máximo." },
+  { label:"Provação suprema", text:"No interior da fortaleza, Arion foi separado dos companheiros e preso numa câmara espelhada. Cada reflexo mostrava uma versão diferente de si: o covarde que ficou na aldeia, o herói que falhou, o homem que nunca existiu. Para sair, precisou escolher qual deles era real — e descobriu que todos eram, ao mesmo tempo.", hint:"O herói enfrenta sua maior crise interna." },
+  { label:"Recompensa", text:"O Cristal do Limiar estava numa sala sem portas, flutuando sobre um pedestal de obsidiana. Quando Arion o tocou, sentiu a memória de cada pessoa que o havia carregado antes. Entendeu que o cristal não era um objeto de poder, mas um espelho de intenção — e que ele estava pronto para carregá-lo.", hint:"Após sobreviver ao pior, o herói conquista o que buscava." },
+  { label:"Caminho de volta", text:"A fuga foi caótica. Lira abriu caminho com suas flechas enquanto Brek guiava pelo labirinto de corredores. Arion carregava o cristal contra o peito, sentindo seu calor pulsar como um segundo coração. Saíram pela entrada dos fundos no momento em que a fortaleza começava a desmoronar.", hint:"Com o objetivo conquistado, o herói precisa retornar." },
+  { label:"Ressurreição", text:"A uma hora de distância, o general corrupto os interceptou com vinte cavaleiros. Lira foi atingida. Brek ficou para trás para abrir tempo. Arion chegou a um desfiladeiro sem saída. O cristal respondeu — não com magia, mas com clareza. Quando os cavaleiros chegaram à beira do abismo, encontraram apenas o eco de uma escolha.", hint:"Uma última ameaça coloca tudo em risco novamente." },
+  { label:"Retorno com o elixir", text:"Arion chegou à Câmara dos Guardiões sozinho, com o cristal e com cicatrizes que não existiam antes. Devolveu o objeto ao seu lugar com mãos que não tremeram. Os guardiões perguntaram o que havia aprendido. Ele respondeu: 'Que o equilíbrio não é ausência de caos. É o que escolhemos fazer dentro dele.'", hint:"O herói completa a missão e entrega o que trouxe." },
+  { label:"Novo mundo comum", text:"A aldeia entre as montanhas parecia menor quando ele voltou — mas não de forma ruim. Menor, como uma roupa que ainda serve mas que já não define o tamanho de quem a veste. Arion retomou a forja, e as pessoas perceberam algo diferente nele: não uma aura de herói, mas a presença de quem já esteve no fundo e escolheu subir.", hint:"O herói voltou transformado ao ponto de partida." }
 ];
 
 // ── STATE ──
 let slots = Array(13).fill(null);
 let shuffledIds = [];
 let dragId = null;
-let dragFromSlot = null;
 let validated = false;
-let touchDragId = null;
-let touchFromSlot = null;
-let touchGhost = null;
 
+// ── LOGIC ──
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -674,286 +661,228 @@ function shuffle(arr) {
   return a;
 }
 
+function startGame() {
+  switchScreen('screen-game');
+  init();
+}
+
+function goToHome() {
+  switchScreen('screen-home');
+}
+
+function switchScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
 function init() {
   slots = Array(13).fill(null);
-  shuffledIds = shuffle([0,1,2,3,4,5,6,7,8,9,10,11,12]);
+  shuffledIds = shuffle(STAGES.map((_, i) => i));
   validated = false;
   render();
 }
-
-function isPlaced(id) { return slots.indexOf(id) !== -1; }
 
 function render() {
   renderPool();
   renderBoard();
   updateScore();
+  lucide.createIcons();
 }
 
-// ── POOL ──
 function renderPool() {
   const pool = document.getElementById('pool');
   pool.innerHTML = '';
   shuffledIds.forEach(id => {
-    const placed = isPlaced(id);
+    const isUsed = slots.includes(id);
     const card = document.createElement('div');
-    card.className = 'para-card' + (placed ? ' placed' : '');
-    card.dataset.id = id;
-    card.innerHTML = `<div class="para-card-num">trecho ${shuffledIds.indexOf(id)+1}</div>${STAGES[id].text}`;
+    card.className = `story-card glass ${isUsed ? 'placed' : ''}`;
+    card.draggable = !isUsed;
+    card.innerHTML = STAGES[id].text;
+    
+    card.addEventListener('dragstart', (e) => {
+      dragId = id;
+      e.dataTransfer.setData('text/plain', id);
+    });
 
-    if (!placed) {
-      // Mouse drag
-      card.draggable = true;
-      card.addEventListener('dragstart', e => {
-        dragId = id; dragFromSlot = null;
-        e.dataTransfer.effectAllowed = 'move';
-        setTimeout(() => card.classList.add('dragging-src'), 0);
-      });
-      card.addEventListener('dragend', () => {
-        card.classList.remove('dragging-src');
-        dragId = null; dragFromSlot = null;
-      });
+    // Touch support
+    card.addEventListener('touchstart', (e) => {
+      if(isUsed) return;
+      handleTouchStart(e, id);
+    }, {passive: false});
 
-      // Touch drag
-      card.addEventListener('touchstart', onTouchStart, {passive: false});
-    }
     pool.appendChild(card);
   });
 }
 
-// ── BOARD ──
 function renderBoard() {
-  const cont = document.getElementById('stages');
-  cont.innerHTML = '';
+  const board = document.getElementById('stages-list');
+  board.innerHTML = '';
   STAGES.forEach((s, i) => {
-    const row = document.createElement('div');
-    row.className = 'stage-row';
+    const isFilled = slots[i] !== null;
+    const isCorrect = isFilled && slots[i] === i;
+    const showHint = validated && isFilled && !isCorrect;
 
-    const lbl = document.createElement('div');
-    lbl.className = 'stage-label';
-    lbl.textContent = (i+1) + '. ' + s.label;
-    row.appendChild(lbl);
+    const container = document.createElement('div');
+    container.className = 'stage-container animate-in';
+    container.style.animationDelay = `${i * 0.05}s`;
 
-    const slot = document.createElement('div');
-    const filled = slots[i] !== null;
-    const correct = filled && slots[i] === i;
-    const wrong = validated && filled && !correct;
-    let cls = 'drop-slot' + (filled ? ' filled' : '');
-    if (validated && filled) cls += correct ? ' correct' : ' wrong';
-    slot.className = cls;
-    slot.dataset.slot = i;
-
-    if (!filled) {
-      const ph = document.createElement('div');
-      ph.className = 'drop-placeholder';
-      ph.textContent = 'arraste aqui';
-      slot.appendChild(ph);
-    } else {
-      const txt = document.createElement('div');
-      txt.className = 'slot-text';
-      txt.textContent = STAGES[slots[i]].text;
-      slot.appendChild(txt);
-
-      const footer = document.createElement('div');
-      footer.className = 'slot-footer';
-      const rmv = document.createElement('button');
-      rmv.className = 'slot-rmv';
-      rmv.textContent = 'remover';
-      rmv.addEventListener('click', () => { slots[i] = null; validated = false; render(); });
-      footer.appendChild(rmv);
-      slot.appendChild(footer);
-
-      if (wrong) {
-        const hint = document.createElement('div');
-        hint.className = 'slot-hint';
-        hint.textContent = s.hint;
-        slot.appendChild(hint);
-      }
-
-      // drag from slot
-      slot.draggable = true;
-      slot.addEventListener('dragstart', e => {
-        dragId = slots[i]; dragFromSlot = i;
-        e.dataTransfer.effectAllowed = 'move';
-        setTimeout(() => slot.style.opacity = '0.4', 0);
-      });
-      slot.addEventListener('dragend', () => {
-        slot.style.opacity = '';
-        dragId = null; dragFromSlot = null;
-      });
-      slot.addEventListener('touchstart', onTouchStartSlot, {passive: false});
-    }
-
-    slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('drag-over'); });
-    slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
-    slot.addEventListener('drop', e => {
-      e.preventDefault();
-      slot.classList.remove('drag-over');
-      if (dragId === null) return;
-      const prev = slots[i];
-      if (dragFromSlot !== null) slots[dragFromSlot] = prev;
-      slots[i] = dragId;
-      validated = false;
-      dragId = null; dragFromSlot = null;
-      render();
-    });
-
-    row.appendChild(slot);
-    cont.appendChild(row);
+    container.innerHTML = `
+      <div class="stage-head">
+        <div class="stage-num">${i + 1}</div>
+        <div class="stage-label">${s.label}</div>
+      </div>
+      <div class="drop-zone ${isFilled ? 'filled' : ''} ${validated && isFilled ? (isCorrect ? 'correct' : 'wrong') : ''}" 
+           data-index="${i}"
+           ondragover="handleDragOver(event)"
+           ondragleave="handleDragLeave(event)"
+           ondrop="handleDrop(event, ${i})">
+        ${!isFilled ? '<div class="drop-placeholder">Arraste um fragmento aqui</div>' : `
+          <div class="card-content">${STAGES[slots[i]].text}</div>
+          <div class="card-actions">
+            <button class="btn-remove" onclick="removeCard(${i})">REMOVER</button>
+          </div>
+        `}
+      </div>
+      ${showHint ? `<div class="hint-box">${s.hint}</div>` : ''}
+    `;
+    board.appendChild(container);
   });
 }
 
 function updateScore() {
-  const placed = slots.filter(v => v !== null).length;
-  let txt;
-  if (validated) {
-    let c = 0; slots.forEach((v,i) => { if (v===i) c++; });
-    txt = c + ' / 13 corretos';
-    if (c === 13) {
-      document.getElementById('btn-check').textContent = 'Ver história';
-      document.getElementById('btn-check').classList.add('gold');
-    } else {
-      document.getElementById('btn-check').textContent = 'Verificar';
-      document.getElementById('btn-check').classList.remove('gold');
-    }
-  } else {
-    txt = placed + ' / 13 colocados';
-    document.getElementById('btn-check').textContent = 'Verificar';
-    document.getElementById('btn-check').classList.remove('gold');
-  }
-  document.getElementById('score-pill').textContent = txt;
+  const correctCount = slots.filter((id, i) => id === i).length;
+  document.getElementById('score-text').textContent = `${correctCount} / 13`;
 }
 
-// ── TOUCH DRAG ──
-function onTouchStart(e) {
-  const card = e.currentTarget;
-  touchDragId = parseInt(card.dataset.id);
-  touchFromSlot = null;
-  startTouchDrag(e, card.textContent);
-}
-function onTouchStartSlot(e) {
-  const slot = e.currentTarget;
-  const si = parseInt(slot.dataset.slot);
-  if (slots[si] === null) return;
-  touchDragId = slots[si];
-  touchFromSlot = si;
-  startTouchDrag(e, STAGES[slots[si]].text);
-}
-function startTouchDrag(e, text) {
+// ── DRAG & DROP ──
+function handleDragOver(e) {
   e.preventDefault();
-  const ghost = document.createElement('div');
-  ghost.className = 'para-card';
-  ghost.style.cssText = 'position:fixed;z-index:999;width:200px;opacity:0.88;pointer-events:none;font-size:0.72rem;transform:rotate(-1.5deg)';
-  ghost.textContent = text.substring(0, 80) + '…';
-  document.body.appendChild(ghost);
-  touchGhost = ghost;
-  moveGhost(e.touches[0]);
+  e.currentTarget.classList.add('active');
+}
+
+function handleDragLeave(e) {
+  e.currentTarget.classList.remove('active');
+}
+
+function handleDrop(e, index) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('active');
+  const id = parseInt(e.dataTransfer.getData('text/plain'));
+  placeCard(id, index);
+}
+
+function placeCard(id, index) {
+  // If card was already in another slot, clear it
+  const existingSlot = slots.indexOf(id);
+  if (existingSlot !== -1) slots[existingSlot] = null;
+
+  slots[index] = id;
+  validated = false;
+  render();
+}
+
+function removeCard(index) {
+  slots[index] = null;
+  validated = false;
+  render();
+}
+
+function checkOrder() {
+  validated = true;
+  render();
+  
+  const allCorrect = slots.every((id, i) => id === i);
+  if (allCorrect) {
+    showResult();
+  }
+}
+
+function resetGame() {
+  if(confirm("Reiniciar jornada? Todo o progresso será perdido.")) {
+    init();
+    switchScreen('screen-game');
+  }
+}
+
+function showResult() {
+  const storyText = STAGES.map(s => `<p>${s.text}</p>`).join('');
+  document.getElementById('full-story-text').innerHTML = storyText;
+  
+  setTimeout(() => {
+    switchScreen('screen-result');
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#d4af37', '#ffffff', '#aa8a2e']
+    });
+  }, 500);
+}
+
+function copyStory() {
+  const text = STAGES.map(s => s.text).join('\n\n');
+  navigator.clipboard.writeText(text).then(() => {
+    alert("História copiada para a área de transferência!");
+  });
+}
+
+// ── TOUCH LOGIC (SIMPLIFIED) ──
+let touchGhost = null;
+let currentTouchId = null;
+
+function handleTouchStart(e, id) {
+  e.preventDefault();
+  currentTouchId = id;
+  const touch = e.touches[0];
+  
+  touchGhost = document.createElement('div');
+  touchGhost.className = 'touch-ghost';
+  touchGhost.textContent = STAGES[id].text.substring(0, 50) + '...';
+  document.body.appendChild(touchGhost);
+  moveGhost(touch.pageX, touch.pageY);
+
+  const onTouchMove = (e) => {
+    const t = e.touches[0];
+    moveGhost(t.pageX, t.pageY);
+  };
+
+  const onTouchEnd = (e) => {
+    const t = e.changedTouches[0];
+    const dropTarget = document.elementFromPoint(t.clientX, t.clientY)?.closest('.drop-zone');
+    
+    if (dropTarget) {
+      const index = parseInt(dropTarget.dataset.index);
+      placeCard(currentTouchId, index);
+    }
+
+    if (touchGhost) touchGhost.remove();
+    document.removeEventListener('touchmove', onTouchMove);
+    document.removeEventListener('touchend', onTouchEnd);
+  };
+
   document.addEventListener('touchmove', onTouchMove, {passive: false});
   document.addEventListener('touchend', onTouchEnd);
 }
-function moveGhost(touch) {
-  if (!touchGhost) return;
-  touchGhost.style.left = (touch.clientX - 100) + 'px';
-  touchGhost.style.top = (touch.clientY - 40) + 'px';
-}
-function onTouchMove(e) {
-  e.preventDefault();
-  moveGhost(e.touches[0]);
-  const t = e.touches[0];
-  document.querySelectorAll('.drop-slot').forEach(s => s.classList.remove('drag-over'));
-  const el = document.elementFromPoint(t.clientX, t.clientY);
-  const slot = el && el.closest('.drop-slot');
-  if (slot) slot.classList.add('drag-over');
-}
-function onTouchEnd(e) {
-  document.removeEventListener('touchmove', onTouchMove);
-  document.removeEventListener('touchend', onTouchEnd);
-  if (touchGhost) { touchGhost.remove(); touchGhost = null; }
-  document.querySelectorAll('.drop-slot').forEach(s => s.classList.remove('drag-over'));
 
-  const t = e.changedTouches[0];
-  const el = document.elementFromPoint(t.clientX, t.clientY);
-  const slotEl = el && el.closest('.drop-slot');
-  if (slotEl && touchDragId !== null) {
-    const i = parseInt(slotEl.dataset.slot);
-    const prev = slots[i];
-    if (touchFromSlot !== null) slots[touchFromSlot] = prev;
-    slots[i] = touchDragId;
-    validated = false;
-    render();
+function moveGhost(x, y) {
+  if (touchGhost) {
+    touchGhost.style.left = `${x - 100}px`;
+    touchGhost.style.top = `${y - 40}px`;
   }
-  touchDragId = null; touchFromSlot = null;
 }
 
-// ── ACTIONS ──
-document.getElementById('btn-start').addEventListener('click', () => {
-  init();
-  showScreen('screen-game');
-});
-
-document.getElementById('btn-home-from-game').addEventListener('click', () => showScreen('screen-home'));
-
-document.getElementById('btn-reset').addEventListener('click', () => { init(); });
-
-document.getElementById('btn-check').addEventListener('click', () => {
-  if (validated) {
-    let c = 0; slots.forEach((v,i) => { if (v===i) c++; });
-    if (c === 13) { showResult(); return; }
-  }
-  if (slots.some(v => v === null)) {
-    showToast('Preencha todos os 13 slots primeiro'); return;
-  }
-  validated = true;
-  let c = 0; slots.forEach((v,i) => { if (v===i) c++; });
-  render();
-  if (c === 13) showToast('Perfeito! Toque em "Ver história"');
-  else showToast(c + ' corretos — veja as dicas nos erros');
-});
-
-document.getElementById('btn-play-again').addEventListener('click', () => {
-  init();
-  showScreen('screen-game');
-});
-
-document.getElementById('btn-copy').addEventListener('click', () => {
-  const txt = 'A Forja do Limiar\n\n' + STAGES.map((s,i) =>
-    (i+1) + '. ' + s.label + '\n\n' + s.text
-  ).join('\n\n— ✦ —\n\n');
-  navigator.clipboard.writeText(txt).then(() => showToast('História copiada!'));
-});
-
-function showResult() {
-  const scroll = document.getElementById('result-scroll');
-  scroll.innerHTML = '';
-  STAGES.forEach((s, i) => {
-    const block = document.createElement('div');
-    block.className = 'result-block';
-    block.innerHTML = `
-      <div class="result-block-label">${i+1}. ${s.label}</div>
-      <div class="result-block-text">${s.text}</div>
-      <div class="result-block-why">${s.why}</div>`;
-    scroll.appendChild(block);
-  });
-  showScreen('screen-result');
-}
-
-// ── NAVIGATION ──
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-// ── TOAST ──
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
-
-// ── SERVICE WORKER ──
+// ── PWA SERVICE WORKER ──
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(() => {});
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      console.log('SW registrado!', reg);
+    }).catch(err => {
+      console.log('SW falhou!', err);
+    });
+  });
 }
+
+lucide.createIcons();
 </script>
 </body>
 </html>
