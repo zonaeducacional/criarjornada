@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jornada">
+<meta name="theme-color" content="#1a1208">
+<title>A Forja do Limiar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1208;
+  --parchment: #f5ead8;
+  --parchment2: #ede0c4;
+  --gold: #c49a2a;
+  --gold-light: #e8c96a;
+  --ember: #c44b1a;
+  --ember-light: #f07040;
+  --sage: #2d6b4a;
+  --sage-light: #4a9e70;
+  --smoke: #8a7f70;
+  --smoke-light: #b8ae9e;
+  --card-bg: #fdf6e8;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── SCREENS ── */
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+.screen.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── HOME ── */
+#screen-home {
+  background: var(--ink);
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  gap: 0;
+}
+.home-ornament {
+  width: 60px;
+  height: 2px;
+  background: var(--gold);
+  margin: 0 auto 2rem;
+}
+.home-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.2rem, 8vw, 3.2rem);
+  font-weight: 600;
+  color: var(--parchment);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.5rem;
+}
+.home-subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--gold);
+  margin-bottom: 2.5rem;
+  letter-spacing: 0.05em;
+}
+.home-desc {
+  font-size: 0.88rem;
+  color: var(--smoke-light);
+  max-width: 300px;
+  margin: 0 auto 3rem;
+  line-height: 1.7;
+}
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--gold);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding: 14px 32px;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: background 0.2s, transform 0.1s;
+  -webkit-user-select: none;
+}
+.btn-primary:active { transform: scale(0.97); background: var(--gold-light); }
+.home-badge {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  color: var(--smoke);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.offline-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--sage-light);
+}
+
+/* ── GAME ── */
+#screen-game {
+  background: var(--parchment);
+  overflow: hidden;
+}
+
+/* top bar */
+.topbar {
+  background: var(--ink);
+  padding: 12px 16px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  safe-area-inset-top: env(safe-area-inset-top);
+  padding-top: calc(12px + env(safe-area-inset-top));
+}
+.topbar-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  color: var(--parchment);
+  font-weight: 600;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.score-pill {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--gold);
+  background: rgba(196,154,42,0.15);
+  border: 1px solid rgba(196,154,42,0.3);
+  padding: 3px 10px;
+  border-radius: 50px;
+  white-space: nowrap;
+}
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--smoke-light);
+  cursor: pointer;
+  padding: 4px;
+  font-size: 1.1rem;
+  line-height: 1;
+  display: flex; align-items: center;
+}
+
+/* game body: pool + board split vertically on mobile */
+.game-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* pool (top half on mobile) */
+.pool-section {
+  background: var(--ink);
+  flex: 0 0 auto;
+  height: 46%;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 2px solid var(--gold);
+}
+.section-label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--smoke);
+  padding: 8px 14px 4px;
+  flex-shrink: 0;
+}
+.pool-scroll {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  padding: 4px 14px 12px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.pool-scroll::-webkit-scrollbar { display: none; }
+
+.para-card {
+  flex-shrink: 0;
+  width: 220px;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  border: 1.5px solid var(--parchment2);
+  padding: 12px 13px;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--ink);
+  cursor: grab;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.15s, transform 0.15s;
+  -webkit-user-select: none;
+  user-select: none;
+  position: relative;
+}
+.para-card.placed {
+  opacity: 0.3;
+  pointer-events: none;
+  border-style: dashed;
+}
+.para-card.dragging-src { transform: scale(0.97); opacity: 0.5; }
+.para-card-num {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--smoke);
+  letter-spacing: 0.08em;
+  margin-bottom: 5px;
+}
+
+/* board (bottom half on mobile) */
+.board-section {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 12px 80px;
+  background: var(--parchment);
+}
+.board-section::-webkit-scrollbar { display: none; }
+.board-story-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: center;
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+
+.stage-row { margin-bottom: 10px; }
+.stage-label {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--smoke);
+  margin-bottom: 4px;
+  padding-left: 2px;
+}
+.drop-slot {
+  min-height: 64px;
+  border-radius: var(--radius-sm);
+  border: 1.5px dashed var(--parchment2);
+  background: rgba(255,255,255,0.5);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.2s, background 0.2s;
+  position: relative;
+}
+.drop-slot.drag-over {
+  border-color: var(--gold);
+  background: rgba(196,154,42,0.08);
+}
+.drop-slot.filled {
+  border-style: solid;
+  border-color: var(--parchment2);
+  background: var(--card-bg);
+}
+.drop-slot.correct {
+  border-color: var(--sage);
+  background: rgba(45,107,74,0.07);
+}
+.drop-slot.wrong {
+  border-color: var(--ember);
+  background: rgba(196,75,26,0.06);
+}
+.drop-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--smoke-light);
+  pointer-events: none;
+}
+.slot-text {
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--ink);
+  flex: 1;
+}
+.slot-footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+.slot-rmv {
+  font-size: 0.68rem;
+  color: var(--smoke);
+  background: none;
+  border: 1px solid var(--parchment2);
+  border-radius: 20px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+.slot-rmv:active { background: var(--parchment2); }
+.slot-hint {
+  font-size: 0.75rem;
+  line-height: 1.55;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(196,75,26,0.08);
+  color: var(--ember);
+  border-left: 3px solid var(--ember);
+  font-style: italic;
+}
+
+/* FAB verify */
+.fab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(transparent, var(--parchment) 40%);
+  display: flex;
+  gap: 10px;
+  z-index: 10;
+}
+.fab-bar.hidden { display: none; }
+.fab-main {
+  flex: 1;
+  background: var(--ink);
+  color: var(--parchment);
+  border: none;
+  border-radius: 50px;
+  padding: 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: background 0.2s, transform 0.1s;
+}
+.fab-main:active { transform: scale(0.98); }
+.fab-main.gold { background: var(--gold); color: var(--ink); }
+.fab-reset {
+  background: none;
+  border: 1.5px solid var(--parchment2);
+  border-radius: 50px;
+  padding: 14px 18px;
+  font-size: 0.85rem;
+  color: var(--smoke);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+.fab-reset:active { background: var(--parchment2); }
+
+/* ── RESULT ── */
+#screen-result {
+  background: var(--ink);
+  overflow: hidden;
+}
+.result-header {
+  padding: 16px 16px 12px;
+  padding-top: calc(16px + env(safe-area-inset-top));
+  background: var(--ink);
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(196,154,42,0.2);
+}
+.result-eyebrow {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+.result-main-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--parchment);
+  line-height: 1.15;
+}
+.result-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 16px 100px;
+}
+.result-scroll::-webkit-scrollbar { display: none; }
+.result-block {
+  margin-bottom: 20px;
+  border-left: 2px solid var(--sage);
+  padding-left: 14px;
+}
+.result-block-label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--sage-light);
+  margin-bottom: 6px;
+}
+.result-block-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--parchment);
+  margin-bottom: 8px;
+}
+.result-block-why {
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--smoke-light);
+  padding: 8px 10px;
+  background: rgba(45,107,74,0.12);
+  border-radius: var(--radius-sm);
+  font-style: italic;
+}
+.result-fab {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(transparent, var(--ink) 40%);
+  display: flex;
+  gap: 10px;
+}
+.btn-ghost {
+  flex: 1;
+  background: none;
+  border: 1.5px solid rgba(196,154,42,0.3);
+  border-radius: 50px;
+  padding: 13px;
+  color: var(--gold);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.btn-ghost:active { background: rgba(196,154,42,0.1); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--ink);
+  color: var(--parchment);
+  font-size: 0.82rem;
+  padding: 10px 20px;
+  border-radius: 50px;
+  border: 1px solid rgba(196,154,42,0.3);
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  white-space: nowrap;
+  z-index: 100;
+  pointer-events: none;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── DESKTOP upgrade ── */
+@media (min-width: 600px) {
+  .game-body { flex-direction: row; }
+  .pool-section {
+    height: auto;
+    width: 260px;
+    flex: 0 0 260px;
+    border-bottom: none;
+    border-right: 2px solid var(--gold);
+  }
+  .pool-scroll {
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: auto;
+    padding: 4px 10px 12px;
+  }
+  .para-card { width: auto; scroll-snap-align: none; }
+  .board-section { padding: 16px 16px 80px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="home-ornament"></div>
+  <h1 class="home-title">A Forja<br>do Limiar</h1>
+  <p class="home-subtitle">Jornada do Herói</p>
+  <p class="home-desc">Treze cenas. Uma jornada. Arranje os trechos na ordem correta para revelar a história completa.</p>
+  <button class="btn-primary" id="btn-start">Começar</button>
+  <div class="home-badge">
+    <span class="offline-dot"></span>
+    Funciona sem internet
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="screen-game" class="screen">
+  <div class="topbar">
+    <span class="topbar-title">A Forja do Limiar</span>
+    <span class="score-pill" id="score-pill">0 / 13</span>
+    <button class="icon-btn" id="btn-home-from-game" title="Início">&#8592;</button>
+  </div>
+  <div class="game-body">
+    <div class="pool-section">
+      <div class="section-label">Trechos — arraste para o lugar certo</div>
+      <div class="pool-scroll" id="pool"></div>
+    </div>
+    <div class="board-section" id="board">
+      <div class="board-story-title">A Forja do Limiar</div>
+      <div id="stages"></div>
+    </div>
+  </div>
+  <div class="fab-bar" id="fab-bar">
+    <button class="fab-reset" id="btn-reset">Reiniciar</button>
+    <button class="fab-main" id="btn-check">Verificar</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="screen-result" class="screen">
+  <div class="result-header">
+    <div class="result-eyebrow">Parabéns — 13 / 13 corretos</div>
+    <div class="result-main-title">A Forja do Limiar</div>
+  </div>
+  <div class="result-scroll" id="result-scroll"></div>
+  <div class="result-fab">
+    <button class="btn-ghost" id="btn-copy">Copiar história</button>
+    <button class="btn-ghost" id="btn-play-again">Jogar de novo</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STAGES = [
+  {
+    label:"Mundo comum",
+    text:"Arion cresceu numa aldeia entre montanhas onde o tempo parecia parado. Os dias se repetiam como ecos: o mesmo mercado, os mesmos rostos, a mesma névoa descendo pelo vale ao entardecer. Ele consertava ferramentas e sonhava em silêncio, sem saber que o silêncio estava prestes a ser quebrado.",
+    hint:"Este trecho mostra a vida do herói antes de qualquer perturbação. Em qual etapa ele ainda vive sua rotina comum, sem saber que é especial?",
+    why:"O herói precisa partir de um lugar familiar e limitado. Sem esse contraste, não há transformação possível. É o ponto zero da jornada."
+  },
+  {
+    label:"Chamado à aventura",
+    text:"Uma noite, um mensageiro chegou com uma carta lacrada em cera negra. Ela dizia que o Cristal do Limiar havia sido roubado, e apenas alguém de sangue das montanhas poderia recuperá-lo. O nome de Arion estava escrito no verso, com uma tinta que brilhava como brasa.",
+    hint:"Algo externo rompe o equilíbrio da vida do herói. Qual etapa marca o momento em que o destino bate à porta pela primeira vez?",
+    why:"Toda jornada começa com uma ruptura — um chamado que tira o herói da zona de conforto. Sem ele, Arion jamais teria motivo para partir."
+  },
+  {
+    label:"Recusa do chamado",
+    text:"Arion dobrou a carta e a enfiou debaixo de uma tábua solta. Quem era ele para salvar qualquer coisa? Tinha mãos calejadas de ferreiro, não de herói. Passou três dias ignorando os sonhos que invadiam seu sono — sonhos de cidades em chamas e de uma voz que repetia seu nome como uma maré.",
+    hint:"O herói recebe o chamado mas hesita. Qual etapa mostra que aceitar o destino não é automático — há resistência interna?",
+    why:"A recusa humaniza o herói: ele tem medo, dúvida, não se acha capaz. Esse momento torna a partida, quando acontece, muito mais significativa."
+  },
+  {
+    label:"Encontro com o mentor",
+    text:"A velha Sura apareceu na forja ao amanhecer do quarto dia. Ela conhecia o pai de Arion e o segredo que ele carregava. Sentou-se na bigorna como se fosse um trono e disse: 'O medo não vai embora quando você age. Ele só muda de lugar.' Então entregou-lhe uma bússola sem agulha e foi embora sem despedida.",
+    hint:"Uma figura sábia aparece com palavras ou objetos que darão ao herói o que ele precisa para seguir. Em qual etapa ele recebe orientação antes de partir?",
+    why:"O mentor não resolve o problema — ele dá ao herói ferramentas e coragem. A bússola sem agulha simboliza que o caminho não está traçado; Arion precisará encontrá-lo."
+  },
+  {
+    label:"Travessia do limiar",
+    text:"Na manhã seguinte, Arion amarrou as botas, colocou a bússola no bolso e caminhou até a borda da aldeia. A névoa do vale o esperava como uma cortina. Ele respirou fundo, deu um passo além da pedra que marcava os limites do lugar que conhecia, e desapareceu na manhã cinzenta.",
+    hint:"O herói finalmente age e cruza a fronteira entre o mundo conhecido e o desconhecido. Qual etapa marca a partida definitiva, sem volta?",
+    why:"Este é o ponto sem retorno. Cruzar o limiar é o compromisso do herói com a jornada — o mundo comum fica para trás e a aventura começa de verdade."
+  },
+  {
+    label:"Testes, aliados e inimigos",
+    text:"O caminho trouxe provações e companheiros improváveis: Lira, uma arqueira exilada que não confiava em ninguém; Brek, um anão cartógrafo que conhecia cada atalho e cada armadilha da região. Juntos, enfrentaram guardas corrompidos, tempestades de areia e a traição de um guia contratado na cidade de Maren.",
+    hint:"O herói enfrenta obstáculos menores e constrói relações ao longo do caminho. Qual etapa mostra o aprendizado progressivo antes do grande desafio?",
+    why:"As provações intermediárias ensinam o herói a confiar, a lutar e a identificar aliados. Sem essa fase, ele chegaria despreparado à provação suprema."
+  },
+  {
+    label:"Aproximação da caverna",
+    text:"A Fortaleza de Cinza erguia-se no centro de uma planície sem sombra. Arion e seus companheiros acamparam a meia légua de distância, estudando as muralhas por dois dias. Lira contou as sentinelas. Brek desenhou a planta do interior. Arion não dormiu — sabia que o que havia lá dentro era diferente de tudo que haviam enfrentado.",
+    hint:"O herói chega perto do perigo máximo mas ainda não entrou. Ele observa e sente o peso do que está por vir. Em qual etapa a tensão cresce antes do confronto?",
+    why:"A aproximação é o momento de preparação e tensão crescente. O herói sabe que o próximo passo será o mais difícil — e essa consciência já é uma transformação."
+  },
+  {
+    label:"Provação suprema",
+    text:"No interior da fortaleza, Arion foi separado dos companheiros e preso numa câmara espelhada. Cada reflexo mostrava uma versão diferente de si: o covarde que ficou na aldeia, o herói que falhou, o homem que nunca existiu. Para sair, precisou escolher qual deles era real — e descobriu que todos eram, ao mesmo tempo.",
+    hint:"O herói enfrenta sua maior crise — confronto com seus próprios limites. Qual é o momento mais intenso e transformador de toda a jornada?",
+    why:"A câmara espelhada representa o confronto com a própria sombra. Arion não derrota um inimigo externo — ele integra suas contradições internas. É a transformação central."
+  },
+  {
+    label:"Recompensa",
+    text:"O Cristal do Limiar estava numa sala sem portas, flutuando sobre um pedestal de obsidiana. Quando Arion o tocou, sentiu a memória de cada pessoa que o havia carregado antes. Entendeu que o cristal não era um objeto de poder, mas um espelho de intenção — e que ele estava pronto para carregá-lo.",
+    hint:"Após sobreviver ao pior, o herói conquista o que buscava. Em qual etapa ele finalmente alcança o objetivo da missão?",
+    why:"A recompensa não é apenas material — é uma compreensão nova. Arion percebe que o cristal sempre foi um reflexo de quem o carrega. Ele só estava pronto agora."
+  },
+  {
+    label:"Caminho de volta",
+    text:"A fuga foi caótica. Lira abriu caminho com suas flechas enquanto Brek guiava pelo labirinto de corredores. Arion carregava o cristal contra o peito, sentindo seu calor pulsar como um segundo coração. Saíram pela entrada dos fundos no momento em que a fortaleza começava a desmoronar.",
+    hint:"Com o objetivo conquistado, o herói precisa retornar — mas o caminho de volta também tem perigos. Qual etapa marca o início do regresso?",
+    why:"Conquistar a recompensa não significa que o perigo acabou. O caminho de volta testa se o herói consegue preservar o que conquistou sob pressão."
+  },
+  {
+    label:"Ressurreição",
+    text:"A uma hora de distância, o general corrupto os interceptou com vinte cavaleiros. Lira foi atingida. Brek ficou para trás para abrir tempo. Arion chegou a um desfiladeiro sem saída. O cristal respondeu — não com magia, mas com clareza. Quando os cavaleiros chegaram à beira do abismo, encontraram apenas o eco de uma escolha.",
+    hint:"Uma última ameaça coloca tudo em risco novamente. O herói precisa usar tudo que aprendeu. Qual etapa é o teste final antes de chegar em casa?",
+    why:"A ressurreição é o último teste: o herói renasce simbolicamente usando não força bruta, mas a sabedoria conquistada ao longo de toda a jornada."
+  },
+  {
+    label:"Retorno com o elixir",
+    text:"Arion chegou à Câmara dos Guardiões sozinho, com o cristal e com cicatrizes que não existiam antes. Devolveu o objeto ao seu lugar com mãos que não tremeram. Os guardiões perguntaram o que havia aprendido. Ele respondeu: 'Que o equilíbrio não é ausência de caos. É o que escolhemos fazer dentro dele.'",
+    hint:"O herói completa a missão e entrega ao mundo o que trouxe da jornada. Em qual etapa ele cumpre o propósito maior da aventura?",
+    why:"O elixir não é apenas o cristal — é a sabedoria que Arion carrega. Ao devolvê-lo e nomear o que aprendeu, ele transforma experiência pessoal em algo que beneficia a todos."
+  },
+  {
+    label:"Novo mundo comum",
+    text:"A aldeia entre as montanhas parecia menor quando ele voltou — mas não de forma ruim. Menor, como uma roupa que ainda serve mas que já não define o tamanho de quem a veste. Arion retomou a forja, e as pessoas perceberam algo diferente nele: não uma aura de herói, mas a presença de quem já esteve no fundo e escolheu subir.",
+    hint:"O herói voltou, mas não é mais o mesmo. A vida cotidiana recomeça — porém transformada. Qual etapa mostra o mundo comum com novos olhos?",
+    why:"O herói retorna ao ponto de partida, mas agora ele é diferente. O 'mundo comum' não mudou — foi o olhar que mudou. É a prova de que a jornada valeu."
+  }
+];
+
+// ── STATE ──
+let slots = Array(13).fill(null);
+let shuffledIds = [];
+let dragId = null;
+let dragFromSlot = null;
+let validated = false;
+let touchDragId = null;
+let touchFromSlot = null;
+let touchGhost = null;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function init() {
+  slots = Array(13).fill(null);
+  shuffledIds = shuffle([0,1,2,3,4,5,6,7,8,9,10,11,12]);
+  validated = false;
+  render();
+}
+
+function isPlaced(id) { return slots.indexOf(id) !== -1; }
+
+function render() {
+  renderPool();
+  renderBoard();
+  updateScore();
+}
+
+// ── POOL ──
+function renderPool() {
+  const pool = document.getElementById('pool');
+  pool.innerHTML = '';
+  shuffledIds.forEach(id => {
+    const placed = isPlaced(id);
+    const card = document.createElement('div');
+    card.className = 'para-card' + (placed ? ' placed' : '');
+    card.dataset.id = id;
+    card.innerHTML = `<div class="para-card-num">trecho ${shuffledIds.indexOf(id)+1}</div>${STAGES[id].text}`;
+
+    if (!placed) {
+      // Mouse drag
+      card.draggable = true;
+      card.addEventListener('dragstart', e => {
+        dragId = id; dragFromSlot = null;
+        e.dataTransfer.effectAllowed = 'move';
+        setTimeout(() => card.classList.add('dragging-src'), 0);
+      });
+      card.addEventListener('dragend', () => {
+        card.classList.remove('dragging-src');
+        dragId = null; dragFromSlot = null;
+      });
+
+      // Touch drag
+      card.addEventListener('touchstart', onTouchStart, {passive: false});
+    }
+    pool.appendChild(card);
+  });
+}
+
+// ── BOARD ──
+function renderBoard() {
+  const cont = document.getElementById('stages');
+  cont.innerHTML = '';
+  STAGES.forEach((s, i) => {
+    const row = document.createElement('div');
+    row.className = 'stage-row';
+
+    const lbl = document.createElement('div');
+    lbl.className = 'stage-label';
+    lbl.textContent = (i+1) + '. ' + s.label;
+    row.appendChild(lbl);
+
+    const slot = document.createElement('div');
+    const filled = slots[i] !== null;
+    const correct = filled && slots[i] === i;
+    const wrong = validated && filled && !correct;
+    let cls = 'drop-slot' + (filled ? ' filled' : '');
+    if (validated && filled) cls += correct ? ' correct' : ' wrong';
+    slot.className = cls;
+    slot.dataset.slot = i;
+
+    if (!filled) {
+      const ph = document.createElement('div');
+      ph.className = 'drop-placeholder';
+      ph.textContent = 'arraste aqui';
+      slot.appendChild(ph);
+    } else {
+      const txt = document.createElement('div');
+      txt.className = 'slot-text';
+      txt.textContent = STAGES[slots[i]].text;
+      slot.appendChild(txt);
+
+      const footer = document.createElement('div');
+      footer.className = 'slot-footer';
+      const rmv = document.createElement('button');
+      rmv.className = 'slot-rmv';
+      rmv.textContent = 'remover';
+      rmv.addEventListener('click', () => { slots[i] = null; validated = false; render(); });
+      footer.appendChild(rmv);
+      slot.appendChild(footer);
+
+      if (wrong) {
+        const hint = document.createElement('div');
+        hint.className = 'slot-hint';
+        hint.textContent = s.hint;
+        slot.appendChild(hint);
+      }
+
+      // drag from slot
+      slot.draggable = true;
+      slot.addEventListener('dragstart', e => {
+        dragId = slots[i]; dragFromSlot = i;
+        e.dataTransfer.effectAllowed = 'move';
+        setTimeout(() => slot.style.opacity = '0.4', 0);
+      });
+      slot.addEventListener('dragend', () => {
+        slot.style.opacity = '';
+        dragId = null; dragFromSlot = null;
+      });
+      slot.addEventListener('touchstart', onTouchStartSlot, {passive: false});
+    }
+
+    slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('drag-over'); });
+    slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
+    slot.addEventListener('drop', e => {
+      e.preventDefault();
+      slot.classList.remove('drag-over');
+      if (dragId === null) return;
+      const prev = slots[i];
+      if (dragFromSlot !== null) slots[dragFromSlot] = prev;
+      slots[i] = dragId;
+      validated = false;
+      dragId = null; dragFromSlot = null;
+      render();
+    });
+
+    row.appendChild(slot);
+    cont.appendChild(row);
+  });
+}
+
+function updateScore() {
+  const placed = slots.filter(v => v !== null).length;
+  let txt;
+  if (validated) {
+    let c = 0; slots.forEach((v,i) => { if (v===i) c++; });
+    txt = c + ' / 13 corretos';
+    if (c === 13) {
+      document.getElementById('btn-check').textContent = 'Ver história';
+      document.getElementById('btn-check').classList.add('gold');
+    } else {
+      document.getElementById('btn-check').textContent = 'Verificar';
+      document.getElementById('btn-check').classList.remove('gold');
+    }
+  } else {
+    txt = placed + ' / 13 colocados';
+    document.getElementById('btn-check').textContent = 'Verificar';
+    document.getElementById('btn-check').classList.remove('gold');
+  }
+  document.getElementById('score-pill').textContent = txt;
+}
+
+// ── TOUCH DRAG ──
+function onTouchStart(e) {
+  const card = e.currentTarget;
+  touchDragId = parseInt(card.dataset.id);
+  touchFromSlot = null;
+  startTouchDrag(e, card.textContent);
+}
+function onTouchStartSlot(e) {
+  const slot = e.currentTarget;
+  const si = parseInt(slot.dataset.slot);
+  if (slots[si] === null) return;
+  touchDragId = slots[si];
+  touchFromSlot = si;
+  startTouchDrag(e, STAGES[slots[si]].text);
+}
+function startTouchDrag(e, text) {
+  e.preventDefault();
+  const ghost = document.createElement('div');
+  ghost.className = 'para-card';
+  ghost.style.cssText = 'position:fixed;z-index:999;width:200px;opacity:0.88;pointer-events:none;font-size:0.72rem;transform:rotate(-1.5deg)';
+  ghost.textContent = text.substring(0, 80) + '…';
+  document.body.appendChild(ghost);
+  touchGhost = ghost;
+  moveGhost(e.touches[0]);
+  document.addEventListener('touchmove', onTouchMove, {passive: false});
+  document.addEventListener('touchend', onTouchEnd);
+}
+function moveGhost(touch) {
+  if (!touchGhost) return;
+  touchGhost.style.left = (touch.clientX - 100) + 'px';
+  touchGhost.style.top = (touch.clientY - 40) + 'px';
+}
+function onTouchMove(e) {
+  e.preventDefault();
+  moveGhost(e.touches[0]);
+  const t = e.touches[0];
+  document.querySelectorAll('.drop-slot').forEach(s => s.classList.remove('drag-over'));
+  const el = document.elementFromPoint(t.clientX, t.clientY);
+  const slot = el && el.closest('.drop-slot');
+  if (slot) slot.classList.add('drag-over');
+}
+function onTouchEnd(e) {
+  document.removeEventListener('touchmove', onTouchMove);
+  document.removeEventListener('touchend', onTouchEnd);
+  if (touchGhost) { touchGhost.remove(); touchGhost = null; }
+  document.querySelectorAll('.drop-slot').forEach(s => s.classList.remove('drag-over'));
+
+  const t = e.changedTouches[0];
+  const el = document.elementFromPoint(t.clientX, t.clientY);
+  const slotEl = el && el.closest('.drop-slot');
+  if (slotEl && touchDragId !== null) {
+    const i = parseInt(slotEl.dataset.slot);
+    const prev = slots[i];
+    if (touchFromSlot !== null) slots[touchFromSlot] = prev;
+    slots[i] = touchDragId;
+    validated = false;
+    render();
+  }
+  touchDragId = null; touchFromSlot = null;
+}
+
+// ── ACTIONS ──
+document.getElementById('btn-start').addEventListener('click', () => {
+  init();
+  showScreen('screen-game');
+});
+
+document.getElementById('btn-home-from-game').addEventListener('click', () => showScreen('screen-home'));
+
+document.getElementById('btn-reset').addEventListener('click', () => { init(); });
+
+document.getElementById('btn-check').addEventListener('click', () => {
+  if (validated) {
+    let c = 0; slots.forEach((v,i) => { if (v===i) c++; });
+    if (c === 13) { showResult(); return; }
+  }
+  if (slots.some(v => v === null)) {
+    showToast('Preencha todos os 13 slots primeiro'); return;
+  }
+  validated = true;
+  let c = 0; slots.forEach((v,i) => { if (v===i) c++; });
+  render();
+  if (c === 13) showToast('Perfeito! Toque em "Ver história"');
+  else showToast(c + ' corretos — veja as dicas nos erros');
+});
+
+document.getElementById('btn-play-again').addEventListener('click', () => {
+  init();
+  showScreen('screen-game');
+});
+
+document.getElementById('btn-copy').addEventListener('click', () => {
+  const txt = 'A Forja do Limiar\n\n' + STAGES.map((s,i) =>
+    (i+1) + '. ' + s.label + '\n\n' + s.text
+  ).join('\n\n— ✦ —\n\n');
+  navigator.clipboard.writeText(txt).then(() => showToast('História copiada!'));
+});
+
+function showResult() {
+  const scroll = document.getElementById('result-scroll');
+  scroll.innerHTML = '';
+  STAGES.forEach((s, i) => {
+    const block = document.createElement('div');
+    block.className = 'result-block';
+    block.innerHTML = `
+      <div class="result-block-label">${i+1}. ${s.label}</div>
+      <div class="result-block-text">${s.text}</div>
+      <div class="result-block-why">${s.why}</div>`;
+    scroll.appendChild(block);
+  });
+  showScreen('screen-result');
+}
+
+// ── NAVIGATION ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── SERVICE WORKER ──
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
